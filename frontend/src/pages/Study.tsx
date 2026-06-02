@@ -4,6 +4,8 @@ import {
   generateVocabulary,
   generateExercises,
   getMe,
+  getHistory,
+  getSession,
   toggleVocabFavorite,
   checkApiKeyStatus,
   setApiKey,
@@ -12,6 +14,7 @@ import {
   type OutlineItem,
   type Chapter,
   type VocabWord,
+  type HistoryItem,
 } from "../api"
 import FeatureToggle from "../components/FeatureToggle"
 
@@ -62,6 +65,47 @@ export default function Study({ preferences, onNavigate }: StudyProps) {
   // 后台预生成练习题
   const [exercisesReady, setExercisesReady] = useState(false)
   const [preGenerating, setPreGenerating] = useState(false)
+
+  // 历史记录
+  const [showHistory, setShowHistory] = useState(false)
+  const [historyList, setHistoryList] = useState<HistoryItem[]>([])
+  const [loadingHistory, setLoadingHistory] = useState(false)
+
+  const handleOpenHistory = async () => {
+    if (showHistory) { setShowHistory(false); return }
+    setShowHistory(true)
+    if (historyList.length === 0) {
+      setLoadingHistory(true)
+      try {
+        const data = await getHistory()
+        setHistoryList(data.sessions)
+      } catch {}
+      setLoadingHistory(false)
+    }
+  }
+
+  const handleRestoreSession = async (sessionId: string) => {
+    setShowHistory(false)
+    setGenerating(true); setError("")
+    try {
+      const result = await getSession(sessionId)
+      setSessionId(result.session_id)
+      setContentTitle(result.topic)
+      setOutline(result.outline)
+      setChapters(result.chapters)
+      setActiveChapter(0)
+      setVocabWords([])
+      if (showEnglish) {
+        setGeneratingVocab(true)
+        generateVocabulary(result.session_id)
+          .then((v) => setVocabWords(v.words))
+          .catch(() => {})
+          .finally(() => setGeneratingVocab(false))
+      }
+    } catch (err: any) {
+      setError(err.message || "加载失败")
+    } finally { setGenerating(false) }
+  }
 
   // 功能开关
   const [showEnglish, setShowEnglish] = useState(preferences.show_english)
@@ -403,12 +447,51 @@ export default function Study({ preferences, onNavigate }: StudyProps) {
       <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between max-w-4xl mx-auto">
         <h2 className="text-sm font-medium text-gray-800">爱学助手</h2>
         <button
+          onClick={handleOpenHistory}
+          className={`text-xs px-2 py-1 rounded-lg transition-colors
+            ${showHistory ? 'bg-gray-100 text-gray-700' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          历史
+        </button>
+        <button
           onClick={() => onNavigate("profile")}
           className="text-xs text-gray-400 hover:text-gray-600"
         >
           我的
         </button>
       </div>
+
+      {/* 历史记录下拉 */}
+      {showHistory && (
+        <div className="max-w-2xl mx-auto w-full px-4">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-3 mb-4">
+            <p className="text-xs text-gray-400 mb-2">最近学习记录</p>
+            {loadingHistory ? (
+              <div className="flex items-center gap-2 py-4 justify-center">
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin" />
+                <span className="text-xs text-gray-300">加载中...</span>
+              </div>
+            ) : historyList.length === 0 ? (
+              <p className="text-xs text-gray-300 py-2 text-center">暂无记录</p>
+            ) : (
+              <div className="space-y-1 max-h-64 overflow-y-auto">
+                {historyList.map((item) => (
+                  <button
+                    key={item.session_id}
+                    onClick={() => handleRestoreSession(item.session_id)}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <p className="text-sm text-gray-700 truncate">{item.topic}</p>
+                    <p className="text-xs text-gray-300 mt-0.5">
+                      {item.created_at ? new Date(item.created_at).toLocaleString("zh-CN") : ""}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="max-w-2xl mx-auto px-4 py-16">
         <div className="text-center mb-10">

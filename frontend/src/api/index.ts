@@ -156,6 +156,16 @@ export async function getSession(sessionId: string): Promise<GenerateResponse> {
   return request<GenerateResponse>(`/content/${sessionId}`)
 }
 
+export interface HistoryItem {
+  session_id: string
+  topic: string
+  created_at: string | null
+}
+
+export async function getHistory(): Promise<{ sessions: HistoryItem[] }> {
+  return request("/content/history")
+}
+
 // ---- API Key 设置 ----
 
 export async function setApiKey(apiKey: string): Promise<{ status: string; message: string }> {

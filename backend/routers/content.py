@@ -194,6 +194,28 @@ async def generate_content(request: Request, req: GenerateRequest, db: Session =
     }
 
 
+@router.get("/content/history")
+async def get_history(user_id: int = Depends(get_current_user), db: Session = Depends(get_db)):
+    """获取当前用户最近 20 条学习记录（仅标题和日期）"""
+    sessions = (
+        db.query(StudySession)
+        .filter(StudySession.user_id == user_id)
+        .order_by(StudySession.created_at.desc())
+        .limit(20)
+        .all()
+    )
+    return {
+        "sessions": [
+            {
+                "session_id": s.session_id,
+                "topic": s.topic,
+                "created_at": s.created_at.isoformat() if s.created_at else None,
+            }
+            for s in sessions
+        ],
+    }
+
+
 @router.get("/content/{session_id}")
 async def get_session(session_id: str, db: Session = Depends(get_db)):
     """获取已有学习记录"""

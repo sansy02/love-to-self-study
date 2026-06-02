@@ -60,8 +60,21 @@ app.include_router(auth_router)
 
 @app.get("/api/health")
 async def health_check():
-    """健康检查"""
+    """健康检查 + 统计"""
     import os
+    from database import SessionLocal
+    from models.models import User, StudySession
     db_url = os.getenv("DATABASE_URL", "sqlite:///./aixue.db")
     db_type = "postgresql" if db_url.startswith("postgresql") else "sqlite"
-    return {"status": "ok", "message": "爱学助手后端运行中", "db": db_type}
+
+    stats = {}
+    try:
+        db = SessionLocal()
+        user_count = db.query(User).count()
+        session_count = db.query(StudySession).count()
+        db.close()
+        stats = {"users": user_count, "study_sessions": session_count}
+    except Exception:
+        stats = {"users": "N/A", "study_sessions": "N/A"}
+
+    return {"status": "ok", "message": "爱学助手后端运行中", "db": db_type, **stats}
