@@ -236,6 +236,13 @@ export async function submitAnswers(sessionId: string, answers: { exercise_id: n
   })
 }
 
+export async function retryWrong(exerciseIds: number[]): Promise<{ session_id: string; exercises: ExerciseItem[] }> {
+  return request("/practice/retry-wrong", {
+    method: "POST",
+    body: JSON.stringify({ exercise_ids: exerciseIds }),
+  })
+}
+
 // ---- 错题本 ----
 
 export interface WrongBookEntry {

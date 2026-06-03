@@ -1,14 +1,28 @@
 import { useState, useEffect } from "react"
-import { getWrongBook, type WrongBookEntry } from "../api"
+import { getWrongBook, retryWrong, type WrongBookEntry } from "../api"
 
 interface WrongBookProps {
-  onNavigate: (page: string) => void
+  onNavigate: (page: string, sessionId?: string) => void
 }
 
 export default function WrongBook({ onNavigate }: WrongBookProps) {
   const [entries, setEntries] = useState<WrongBookEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [showExplanation, setShowExplanation] = useState<Record<number, boolean>>({})
+  const [retrying, setRetrying] = useState(false)
+
+  const handleRetry = async () => {
+    if (entries.length === 0) return
+    setRetrying(true)
+    try {
+      const result = await retryWrong(entries.map(e => e.exercise_id))
+      onNavigate("practice", result.session_id)
+    } catch {
+      alert("重练生成失败，请稍后重试")
+    } finally {
+      setRetrying(false)
+    }
+  }
 
   useEffect(() => {
     getWrongBook()
@@ -40,6 +54,12 @@ export default function WrongBook({ onNavigate }: WrongBookProps) {
           ← 返回
         </button>
         <h2 className="text-sm font-medium text-gray-800 flex-1">📖 错题本</h2>
+        {entries.length > 0 && (
+          <button onClick={handleRetry} disabled={retrying}
+                  className="text-xs px-3 py-1 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50">
+            {retrying ? "生成中..." : "🔄 重练全部"}
+          </button>
+        )}
         <span className="text-xs text-gray-400">{entries.length} 道错题</span>
       </div>
 

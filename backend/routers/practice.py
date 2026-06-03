@@ -202,3 +202,70 @@ async def submit_answers(session_id: str, req: SubmitRequest, user_id: int = Dep
         "score": round((len(results) - wrong_count) / len(results) * 100, 1) if results else 0,
         "results": results,
     }
+
+
+# ---- 错题重练 ----
+
+class RetryRequest(BaseModel):
+    exercise_ids: list[int]
+
+
+@router.post("/retry-wrong")
+async def retry_wrong(req: RetryRequest, user_id: int = Depends(get_current_user), db: Session = Depends(get_db)):
+    """根据错题 exercise_ids 重新生成一套练习题"""
+    if not req.exercise_ids:
+        raise HTTPException(status_code=400, detail="请提供要重练的错题")
+
+    # 找到这些 exercise 的 session_id，拼接内容
+    exercises = db.query(Exercise).filter(Exercise.id.in_(req.exercise_ids)).all()
+    session_ids = list(set(e.session_id for e in exercises))
+    content_text = ""
+    for sid in session_ids:
+        session = db.query(StudySession).filter(StudySession.session_id == sid).first()
+        if session:
+            chapters = json.loads(session.content) if session.content else []
+            for ch in chapters:
+                for sec in ch.get("sections", []):
+                    content_text += sec.get("body", "") + "\n"
+
+    if not content_text.strip():
+        raise HTTPException(status_code=400, detail="无法从错题中提取教学内容")
+
+    # 调用 AI 生成新练习题
+    try:
+        new_exercises = await generate_exercises(content_text, user_id=user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI 生成失败: {str(e)}")
+
+    import uuid
+    new_session_id = str(uuid.uuid4())
+
+    saved = []
+    for ex in new_exercises:
+        exercise = Exercise(
+            session_id=new_session_id,
+            chapter_index=0,
+            question_type=ex.get("type", "choice"),
+            question=ex.get("question", ""),
+            options=json.dumps(ex.get("options", []), ensure_ascii=False),
+            correct_answer=ex.get("answer", ""),
+            explanation=ex.get("explanation", ""),
+        )
+        db.add(exercise)
+        saved.append(exercise)
+    db.commit()
+
+    return {
+        "session_id": new_session_id,
+        "exercises": [
+            {
+                "id": e.id,
+                "type": e.question_type,
+                "question": e.question,
+                "options": json.loads(e.options) if e.options else [],
+                "answer": e.correct_answer,
+                "explanation": e.explanation,
+            }
+            for e in saved
+        ],
+    }
