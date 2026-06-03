@@ -258,6 +258,24 @@ export default function Study({ preferences, onNavigate }: StudyProps) {
             ← 返回
           </button>
           <h2 className="text-sm font-medium text-gray-800 truncate flex-1">{contentTitle}</h2>
+          <button
+            onClick={() => {
+              const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>${contentTitle}</title>
+              <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px;line-height:1.8;color:#333}
+              h1{text-align:center;border-bottom:1px solid #eee;padding-bottom:16px}
+              h2{font-size:1.2em;margin-top:32px}h3{font-size:1em;color:#555}
+              .example{background:#fff8e1;padding:12px 16px;border-radius:8px;margin:12px 0;border-left:3px solid #ffc107}</style></head>
+              <body><h1>${contentTitle}</h1>
+              ${chapters.map((ch, i) => `<h2>${outline[i]?.title || ch.title}</h2>
+              ${ch.sections.map(s => `<h3>${s.heading}</h3><p>${s.body.replace(/\n/g,'<br>')}</p>
+              ${s.example?`<div class="example">💡 <b>案例：</b>${s.example}</div>`:''}`).join('')}`).join('')}
+              </body></html>`
+              const blob = new Blob([html], {type:'text/html;charset=utf-8'})
+              const a = document.createElement('a'); a.href=URL.createObjectURL(blob)
+              a.download=`${contentTitle}.html`; a.click()
+            }}
+            className="text-xs text-gray-400 hover:text-gray-600"
+            title="导出为 HTML">📄 导出</button>
           {showEnglish && (
             <button onClick={() => setVocabVisible(!vocabVisible)}
                     className={`text-xs px-2 py-1 rounded-lg transition-colors
