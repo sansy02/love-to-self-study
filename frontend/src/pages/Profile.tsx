@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import FeatureToggle from "../components/FeatureToggle"
 import {
   getMe, updateMe, changePassword, getUserStats, getUserVocabulary,
-  savePreferences, type UserInfo, type UserStats, type VocabWord, type Preferences,
+  savePreferences, LOGIN_ENABLED, type UserInfo, type UserStats, type VocabWord, type Preferences,
 } from "../api"
 
 interface ProfileProps {
@@ -101,10 +101,10 @@ export default function Profile({ onNavigate, onLogout, preferences }: ProfilePr
         <div className="p-4 bg-gray-50 rounded-xl mb-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500">
-              {user?.email?.charAt(0).toUpperCase()}
+              {user?.is_anonymous ? "我" : user?.email?.charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-800">{user?.email}</p>
+              <p className="text-sm font-medium text-gray-800">{user?.is_anonymous ? "本机用户" : user?.email}</p>
               <p className="text-xs text-gray-400">
                 {user?.grade || "未设置年级"} · {user?.major || "未设置专业"}
               </p>
@@ -208,7 +208,8 @@ export default function Profile({ onNavigate, onLogout, preferences }: ProfilePr
           </div>
         </div>
 
-        {/* 修改密码 */}
+        {/* 修改密码（账号模式才显示） */}
+        {LOGIN_ENABLED && !user?.is_anonymous && (
         <div className="border-t border-gray-100 pt-6 mb-6">
           <button onClick={() => setShowPassword(!showPassword)}
                   className="text-sm text-gray-500 hover:text-gray-700">
@@ -227,12 +228,24 @@ export default function Profile({ onNavigate, onLogout, preferences }: ProfilePr
             </div>
           )}
         </div>
+        )}
 
-        {/* 退出登录 */}
-        <button onClick={onLogout}
-                className="w-full py-3 text-sm text-red-400 border border-red-100 rounded-xl hover:bg-red-50 transition-colors">
-          退出登录
-        </button>
+        {/* 退出登录 / 匿名模式说明 */}
+        {LOGIN_ENABLED ? (
+          <button onClick={onLogout}
+                  className="w-full py-3 text-sm text-red-400 border border-red-100 rounded-xl hover:bg-red-50 transition-colors">
+            退出登录
+          </button>
+        ) : (
+          <div className="border-t border-gray-100 pt-6">
+            <p className="text-xs text-gray-400 leading-relaxed mb-3">
+              现在不需要注册账号：你的学习记录、错题和收藏保存在这台设备的浏览器里对应的身份下。
+              清除浏览器数据或换设备后会变成新的身份。
+            </p>
+            <button onClick={() => { if (confirm("确定要换一个新身份吗？当前的学习记录、错题和收藏在这个浏览器里将看不到了。")) onLogout() }}
+                    className="text-xs text-gray-400 hover:text-red-500 underline">换一个新身份（清空本机记录）</button>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { getUserVocabulary, type VocabWord } from "../api"
+import { listWords, deleteWord, type SavedWord } from "../api"
 
 interface VocabularyBookProps {
   onNavigate: (page: string) => void
@@ -11,7 +11,7 @@ interface DictData {
 }
 
 export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
-  const [words, setWords] = useState<VocabWord[]>([])
+  const [words, setWords] = useState<SavedWord[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [dictCache, setDictCache] = useState<Record<number, DictData | null>>({})
@@ -45,7 +45,7 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
   }
 
   useEffect(() => {
-    getUserVocabulary()
+    listWords()
       .then((data) => setWords(data.words))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -64,7 +64,8 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
       {/* 顶部栏 */}
       <div className="border-b border-gray-100 px-4 py-3 flex items-center gap-4">
         <button onClick={() => onNavigate("profile")} className="text-xs text-gray-400 hover:text-gray-600">← 返回</button>
-        <h2 className="text-sm font-medium text-gray-800 flex-1">我的词汇收藏</h2>
+        <h2 className="text-sm font-medium text-gray-800 flex-1">我的术语收藏</h2>
+        <button onClick={() => onNavigate("review")} className="text-xs text-gray-500 hover:text-gray-800">去复习</button>
         <span className="text-xs text-gray-300">{words.length} 词</span>
       </div>
 
@@ -73,7 +74,7 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
           <div className="text-center py-20">
             <p className="text-4xl mb-4">📖</p>
             <p className="text-sm text-gray-400">还没有收藏的词汇</p>
-            <p className="text-xs text-gray-300 mt-1">学习时点击 ☆ 即可收藏</p>
+            <p className="text-xs text-gray-300 mt-1">学习时在「本页术语」里点 ☆ 即可收藏</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -91,7 +92,8 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
                 >
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{w.word}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{w.translation}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{w.translation}
+                      <span className="text-gray-300 ml-2">{w.mastered ? "已掌握" : w.page_no ? `第 ${w.page_no} 页` : ""}</span></p>
                   </div>
                   <span className={`text-xs text-gray-300 transition-transform duration-200
                     ${expandedId === w.id ? 'rotate-180' : ''}`}>
@@ -141,6 +143,7 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
                       <div>
                         <p className="text-xs text-gray-400 mb-1">AI 翻译</p>
                         <p className="text-sm text-gray-700">{w.translation}</p>
+                        {w.note && <p className="text-xs text-gray-500 mt-1">{w.note}</p>}
                       </div>
                       {w.example && (
                         <div className="mt-2">
@@ -148,6 +151,8 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
                           <p className="text-sm text-gray-600 italic leading-relaxed">{w.example}</p>
                         </div>
                       )}
+                      <button onClick={async () => { try { await deleteWord(w.id); setWords((l) => l.filter((x) => x.id !== w.id)) } catch {} }}
+                              className="text-xs text-gray-400 hover:text-red-500 mt-3">取消收藏</button>
                     </div>
                   </div>
                 )}
