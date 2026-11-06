@@ -60,21 +60,21 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* 顶部栏 */}
-      <div className="border-b border-gray-100 px-4 py-3 flex items-center gap-4">
+      <div className="max-w-2xl mx-auto w-full px-4 pt-6 md:pt-10 flex items-center gap-4">
         <button onClick={() => onNavigate("profile")} className="text-xs text-gray-400 hover:text-gray-600">← 返回</button>
-        <h2 className="text-sm font-medium text-gray-800 flex-1">我的术语收藏</h2>
+        <h1 className="font-serif text-2xl text-gray-900 tracking-wide flex-1">我的术语收藏</h1>
         <button onClick={() => onNavigate("review")} className="text-xs text-gray-500 hover:text-gray-800">去复习</button>
-        <span className="text-xs text-gray-300">{words.length} 词</span>
+        <span className="text-xs text-gray-400">{words.length} 词</span>
       </div>
 
       <div className="max-w-2xl mx-auto w-full px-4 py-6">
         {words.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-4xl mb-4">📖</p>
+            
             <p className="text-sm text-gray-400">还没有收藏的词汇</p>
-            <p className="text-xs text-gray-300 mt-1">学习时在「本页术语」里点 ☆ 即可收藏</p>
+            <p className="text-xs text-gray-400 mt-1">学习时在「本页术语」里点 ☆ 即可收藏</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -93,9 +93,9 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{w.word}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{w.translation}
-                      <span className="text-gray-300 ml-2">{w.mastered ? "已掌握" : w.page_no ? `第 ${w.page_no} 页` : ""}</span></p>
+                      <span className="text-gray-400 ml-2">{w.mastered ? "已掌握" : w.page_no ? `第 ${w.page_no} 页` : ""}</span></p>
                   </div>
-                  <span className={`text-xs text-gray-300 transition-transform duration-200
+                  <span className={`text-xs text-gray-400 transition-transform duration-200
                     ${expandedId === w.id ? 'rotate-180' : ''}`}>
                     ▼
                   </span>
@@ -108,7 +108,7 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
                     {loadingDict[w.id] ? (
                       <div className="flex items-center gap-2 py-2">
                         <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin" />
-                        <span className="text-xs text-gray-300">查询词典中...</span>
+                        <span className="text-xs text-gray-400">查询词典中...</span>
                       </div>
                     ) : dictCache[w.id] ? (
                       <>
@@ -121,10 +121,10 @@ export default function VocabularyBook({ onNavigate }: VocabularyBookProps) {
                         {dictCache[w.id]!.meanings.map((m, mi) => (
                           <div key={mi}>
                             <p className="text-xs text-gray-400 mb-1">
-                              {m.partOfSpeech === "noun" ? "📗 名词" :
-                               m.partOfSpeech === "verb" ? "📕 动词" :
-                               m.partOfSpeech === "adjective" ? "📙 形容词" :
-                               m.partOfSpeech === "adverb" ? "📘 副词" : `🔤 ${m.partOfSpeech}`}
+                              {m.partOfSpeech === "noun" ? "名词" :
+                               m.partOfSpeech === "verb" ? "动词" :
+                               m.partOfSpeech === "adjective" ? "形容词" :
+                               m.partOfSpeech === "adverb" ? "副词" : m.partOfSpeech}
                             </p>
                             {m.definitions.map((d, di) => (
                               <div key={di} className="ml-3 mb-1">

@@ -8,11 +8,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
 
 import config
-from database import init_db
+import errors
+from database import init_db, SessionLocal
 from middleware.rate_limit import limiter
 from routers.profile import router as profile_router
 from routers.upload import router as upload_router
@@ -22,6 +21,8 @@ from routers.vocabulary import router as vocabulary_router
 from routers.practice import router as practice_router
 from routers.auth import router as auth_router
 from routers.study import router as study_router
+from routers.courses import router as courses_router
+from routers.me import router as me_router
 from routers.review import router as review_router, legacy_router as user_vocab_router
 from security import get_secret
 from services.ai_service import free_providers_summary
@@ -35,6 +36,12 @@ async def lifespan(app: FastAPI):
     """应用启动时初始化数据库、检查配置"""
     init_db()
     get_secret()  # 没配置 JWT_SECRET 时在这里生成并保存
+    from services.sample import ensure_sample
+    db = SessionLocal()
+    try:
+        ensure_sample(db)  # 准备好示例课程
+    finally:
+        db.close()
     models = free_providers_summary()
     if models:
         logger.info("免费模型链：%s", " → ".join(models))
@@ -47,13 +54,23 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="爱学助手",
     description="上传 PPT 或输入话题，AI 逐页讲解、追问、英文练习和间隔复习",
-    version="2.0.0",
+    version="3.0.0",
     lifespan=lifespan,
 )
 
-# 注册速率限制器
+# 注册速率限制器 + 统一错误格式
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+errors.register(app)
+
+
+@app.middleware("http")
+async def catch_unhandled(request, call_next):
+    """兜底：未知异常也返回统一格式（放在 CORS 里面，前端才能读到错误内容，而不是看到跨域失败）"""
+    try:
+        return await call_next(request)
+    except Exception as exc:  # noqa: BLE001
+        return await errors.unhandled_error_handler(request, exc)
+
 
 # CORS：只放行配置的域名 + 本项目的 Vercel 预览域名
 ALLOWED_ORIGINS = [o.strip() for o in os.getenv(
@@ -70,6 +87,8 @@ app.add_middleware(
 
 # 注册路由
 app.include_router(auth_router)
+app.include_router(courses_router)
+app.include_router(me_router)
 app.include_router(study_router)
 app.include_router(practice_router)
 app.include_router(review_router)

@@ -1,11 +1,124 @@
 @import "tailwindcss";
 
-/* 全局自定义样式 */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/*
+ * 视觉风格：东方诗意的极简（低饱和灰紫 / 深紫，大量留白，安静）
+ * 做法：把 Tailwind 的 gray 换成带一点紫的灰，其余颜色都降低饱和度。
+ * 页面里继续写 text-gray-500、bg-gray-900 等类名，颜色会自动变成这套。
+ * 文字颜色最浅用到 gray-400（在白底上对比度 ≥ 4.5:1）；gray-300 及更浅只用于边框和装饰。
+ */
+@theme {
+  --color-gray-50: #f8f7fa;
+  --color-gray-100: #f1eff4;
+  --color-gray-200: #e4e0ea;
+  --color-gray-300: #ccc6d5;
+  --color-gray-400: #6d657a;
+  --color-gray-500: #5c546a;
+  --color-gray-600: #4d4559;
+  --color-gray-700: #423b4e;
+  --color-gray-800: #322b3d;
+  --color-gray-900: #2a2235;
+  --color-gray-950: #1b1623;
+
+  /* 强调色：雾紫（链接、提示） */
+  --color-blue-50: #f4f2f8;
+  --color-blue-100: #e7e2f0;
+  --color-blue-500: #67588a;
+  --color-blue-600: #594b7b;
+  --color-blue-700: #4b3f69;
+
+  /* 错误：低饱和的豆沙红 */
+  --color-red-50: #faf4f5;
+  --color-red-100: #f0e1e4;
+  --color-red-400: #9d5b67;
+  --color-red-500: #8f4d59;
+  --color-red-600: #7c404b;
+
+  /* 正确：灰绿 */
+  --color-green-50: #f3f6f3;
+  --color-green-100: #e2ebe3;
+  --color-green-500: #4b7356;
+  --color-green-600: #41654b;
+  --color-green-700: #36553f;
+
+  /* 例子、提醒：米色 */
+  --color-amber-50: #faf7f0;
+  --color-amber-100: #eee6d4;
+  --color-amber-500: #8c6d33;
+  --color-amber-600: #7a5f2b;
+
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+
+  --animate-fade-in: fade-in 0.35s ease-out both;
+  --animate-toast-in: toast-in 0.3s ease-out both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: #fdfcfe;
+    color: var(--color-gray-800);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--color-blue-100);
+  }
+
+  /* 所有按钮：按下有轻微回弹，禁用时不能点 */
+  button,
+  [role="button"],
+  label:has(> input[type="radio"]) {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease,
+      transform 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled):active,
+  [role="button"]:active {
+    transform: scale(0.97);
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--color-gray-400);
+  }
+
+  input[type="radio"] {
+    accent-color: var(--color-gray-800);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -46,11 +46,17 @@ _NEW_COLUMNS = {
         "api_key": ("VARCHAR(200)", "VARCHAR(200)"),
         "api_key_enc": ("TEXT", "TEXT"),
         "is_anonymous": ("BOOLEAN DEFAULT 0", "BOOLEAN DEFAULT false"),
+        "recovery_hash": ("VARCHAR(64)", "VARCHAR(64)"),
+        "recovery_created_at": ("DATETIME", "TIMESTAMP"),
+        "learn_profile": ("TEXT DEFAULT ''", "TEXT DEFAULT ''"),
     },
     "study_sessions": {
         "document_id": ("VARCHAR(32)", "VARCHAR(32)"),
         "progress": ("TEXT DEFAULT ''", "TEXT DEFAULT ''"),
         "updated_at": ("DATETIME", "TIMESTAMP"),
+        "course_id": ("INTEGER", "INTEGER"),
+        "material_type": ("VARCHAR(20) DEFAULT 'lecture'", "VARCHAR(20) DEFAULT 'lecture'"),
+        "week": ("INTEGER", "INTEGER"),
     },
     "exercises": {
         "key_points": ("TEXT DEFAULT ''", "TEXT DEFAULT ''"),
@@ -60,6 +66,9 @@ _NEW_COLUMNS = {
         "answered": ("BOOLEAN DEFAULT 0", "BOOLEAN DEFAULT false"),
         "lang": ("VARCHAR(10) DEFAULT 'zh'", "VARCHAR(10) DEFAULT 'zh'"),
         "user_id": ("INTEGER", "INTEGER"),
+        "kp_ids": ("TEXT DEFAULT ''", "TEXT DEFAULT ''"),
+        "source_label": ("VARCHAR(200) DEFAULT ''", "VARCHAR(200) DEFAULT ''"),
+        "marks": ("INTEGER", "INTEGER"),
     },
     "wrong_book": {
         "feedback": ("TEXT DEFAULT ''", "TEXT DEFAULT ''"),

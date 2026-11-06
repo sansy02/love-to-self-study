@@ -127,6 +127,60 @@ async def create_anonymous(request: Request, db: Session = Depends(get_db)):
     return {"token": create_token(user.id, user.email, anonymous=True), "user": _user_payload(user)}
 
 
+# ---- 找回码：换设备后继续用同一个学习记录（不需要账号密码） ----
+
+_RECOVERY_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # 去掉了容易看混的 0/O、1/I/L
+
+
+def _normalize_code(code: str) -> str:
+    return "".join(c for c in code.upper() if c.isalnum())
+
+
+def _hash_code(code: str) -> str:
+    import hashlib
+    return hashlib.sha256(("aixue-recovery|" + _normalize_code(code)).encode()).hexdigest()
+
+
+class RecoverRequest(BaseModel):
+    code: str
+
+
+@router.get("/auth/recovery-code")
+async def recovery_status(user_id: int = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    return {"has_code": bool(user and user.recovery_hash),
+            "created_at": user.recovery_created_at.isoformat() if user and user.recovery_created_at else None}
+
+
+@router.post("/auth/recovery-code")
+@limiter.limit("10/hour")
+async def create_recovery_code(request: Request, user_id: int = Depends(get_current_user), db: Session = Depends(get_db)):
+    """生成新的找回码（只显示这一次；旧的找回码立即失效）。数据库只存哈希，不存明文。"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    raw = "".join(secrets.choice(_RECOVERY_ALPHABET) for _ in range(16))  # 约 79 位随机性
+    code = "-".join(raw[i:i + 4] for i in range(0, 16, 4))
+    user.recovery_hash = _hash_code(code)
+    user.recovery_created_at = datetime.datetime.utcnow()
+    db.commit()
+    return {"code": code}
+
+
+@router.post("/auth/recover")
+@limiter.limit("10/hour")
+async def recover(request: Request, req: RecoverRequest, db: Session = Depends(get_db)):
+    """在新设备上输入找回码，换回原来的学习记录"""
+    norm = _normalize_code(req.code)
+    if len(norm) != 16:
+        raise HTTPException(status_code=400, detail="找回码格式不对，应该是 16 位字母和数字（例如 ABCD-EFGH-JKMN-PQRS）")
+    user = db.query(User).filter(User.recovery_hash == _hash_code(norm)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="找回码不正确，或者已经被换成了新的找回码")
+    return {"token": create_token(user.id, user.email, anonymous=bool(user.is_anonymous)),
+            "user": _user_payload(user)}
+
+
 def _require_account_mode():
     if not config.ACCOUNT_ENABLED:
         raise HTTPException(status_code=403, detail="账号登录暂未开放，直接使用即可（无需注册）")

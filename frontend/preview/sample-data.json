@@ -1,0 +1,692 @@
+{
+ "SAMPLE_TITLE": "示例课程：类与对象 (Classes and Objects)",
+ "SAMPLE_PAGES": [
+  {
+   "title": "Week 3: Classes and Objects",
+   "text": "Week 3: Classes and Objects\nIntroduction to Object-Oriented Programming\nToday:\n- What is a class?\n- What is an object?\n- Encapsulation\n- Constructors",
+   "explanation": {
+    "summary": "这是第 3 周的封面页：今天学「类」和「对象」。",
+    "explanation": "这一页是本讲的目录，告诉你今天会学四件事：\n- **类 (Class)** 是什么\n- **对象 (Object)** 是什么\n- **封装 (Encapsulation)**\n- **构造方法 (Constructor)**\n\n这四个词是面向对象编程 (Object-Oriented Programming, OOP) 的基础，后面每一页都会用到。",
+    "key_terms": [
+     {
+      "en": "Object-Oriented Programming",
+      "zh": "面向对象编程",
+      "note": "用「对象」来组织程序的一种写法"
+     }
+    ],
+    "example": "",
+    "exam_tip": "",
+    "page_type": "cover"
+   }
+  },
+  {
+   "title": "What is a Class?",
+   "text": "What is a Class?\n- A class is a blueprint for creating objects\n- It defines attributes (data) and methods (behaviour)\nExample:\n  class Student\n    attributes: name, studentId\n    methods: enrol(course), getName()",
+   "explanation": {
+    "summary": "类就是「设计图」：规定一类东西有哪些数据、能做哪些事。",
+    "explanation": "**类 (Class)** 本身不是一个具体的东西，而是一张设计图 (blueprint)。它规定两件事：\n- **属性 (Attribute)**：这类东西有哪些数据，比如学生有 name（名字）和 studentId（学号）\n- **方法 (Method)**：这类东西能做什么，比如学生可以 enrol(course)（选课）\n\n课件里的 Student 就是一个类：它只说明「学生都有名字和学号、都能选课」，还没有指向任何一个具体的学生。",
+    "key_terms": [
+     {
+      "en": "Class",
+      "zh": "类",
+      "note": "创建对象用的设计图"
+     },
+     {
+      "en": "Attribute",
+      "zh": "属性",
+      "note": "对象保存的数据"
+     },
+     {
+      "en": "Method",
+      "zh": "方法",
+      "note": "对象能执行的操作"
+     }
+    ],
+    "example": "「奶茶」的配方就像一个类：规定了要有茶底、甜度、加料；每一杯真正做出来的奶茶才是对象。",
+    "exam_tip": "常考定义题，可以写：A class is a blueprint that defines the attributes and methods of its objects.",
+    "page_type": "content"
+   }
+  },
+  {
+   "title": "What is an Object?",
+   "text": "What is an Object?\n- An object is an instance of a class\n- Each object has its own state (attribute values)\nExample:\n  s1 = new Student(\"Mei\", 1001)\n  s2 = new Student(\"Arif\", 1002)\n- s1 and s2 are two different objects of the same class",
+   "explanation": {
+    "summary": "对象是按设计图做出来的「具体的那一个」，每个对象有自己的数据。",
+    "explanation": "**对象 (Object)** 是类的一个**实例 (Instance)**，也就是按设计图真正造出来的东西。\n\n课件里 s1 和 s2 都是 Student 类的对象：\n- s1 的名字是 Mei，学号 1001\n- s2 的名字是 Arif，学号 1002\n\n它们来自同一个类，但各自保存自己的数据，这些数据叫对象的**状态 (State)**。改了 s1 的名字，不会影响 s2。",
+    "key_terms": [
+     {
+      "en": "Object",
+      "zh": "对象",
+      "note": "类的具体实例"
+     },
+     {
+      "en": "Instance",
+      "zh": "实例",
+      "note": "按类创建出来的一个具体对象"
+     },
+     {
+      "en": "State",
+      "zh": "状态",
+      "note": "对象当前各个属性的值"
+     }
+    ],
+    "example": "同一张身份证模板（类），印出了你和室友两张身份证（对象），上面的名字、号码各不相同。",
+    "exam_tip": "区分题常考：A class is a blueprint, while an object is an instance of that class with its own state.",
+    "page_type": "content"
+   }
+  },
+  {
+   "title": "Encapsulation",
+   "text": "Encapsulation\n- Keep attributes private\n- Provide public methods to read or change them (getters and setters)\n- Benefits: protects data, allows validation, hides details\nExample:\n  private studentId\n  public getStudentId()\n  public setStudentId(id)  // checks id > 0",
+   "explanation": {
+    "summary": "封装就是把数据「锁起来」，只能通过指定的方法去读和改。",
+    "explanation": "**封装 (Encapsulation)** 有两步：\n- 把属性设成**私有 (private)**，外面的代码不能直接改\n- 提供**公开 (public)** 的方法来读写它，读的叫 **getter**，改的叫 **setter**\n\n好处：\n- **保护数据**：别人不能随便把学号改成负数\n- **可以检查**：setStudentId(id) 里可以先检查 id > 0 再保存\n- **隐藏细节**：外面只需要知道怎么调用方法，不用管里面怎么存",
+    "key_terms": [
+     {
+      "en": "Encapsulation",
+      "zh": "封装",
+      "note": "把数据藏起来，只通过方法访问"
+     },
+     {
+      "en": "Getter / Setter",
+      "zh": "读取方法 / 设置方法",
+      "note": "读取或修改私有属性的公开方法"
+     },
+     {
+      "en": "Private",
+      "zh": "私有",
+      "note": "只有类自己内部能访问"
+     }
+    ],
+    "example": "ATM 机：你不能直接打开钱箱拿钱（private），只能按规定的按钮取款（public 方法），机器还会先检查余额（validation）。",
+    "exam_tip": "常考「为什么要封装」：Encapsulation protects data by making attributes private and allowing access only through public methods, which can validate input.",
+    "page_type": "content"
+   }
+  },
+  {
+   "title": "Constructors",
+   "text": "Constructors\n- A special method that runs automatically when an object is created\n- Sets the initial state of the object\n- Has the same name as the class\n- A class can have more than one constructor (overloading)\nExample:\n  Student(name, id)\n  Student(name)   // id assigned later",
+   "explanation": {
+    "summary": "构造方法在「创建对象的那一刻」自动运行，负责把初始数据设好。",
+    "explanation": "**构造方法 (Constructor)** 是一种特殊的方法：\n- 用 new 创建对象时**自动运行**，不用你手动调用\n- 作用是设置对象的**初始状态**，比如名字和学号\n- 名字和类名一样，比如 Student 类的构造方法叫 Student(...)\n- 一个类可以有好几个参数不同的构造方法，这叫**重载 (Overloading)**\n\n课件例子：Student(name, id) 一次把名字和学号都设好；Student(name) 只设名字，学号以后再补。",
+    "key_terms": [
+     {
+      "en": "Constructor",
+      "zh": "构造方法",
+      "note": "创建对象时自动运行，设置初始值"
+     },
+     {
+      "en": "Overloading",
+      "zh": "重载",
+      "note": "同名方法有不同的参数列表"
+     }
+    ],
+    "example": "新生报到时，学校一次性帮你登记好名字和学号（构造方法），之后你才开始选课。",
+    "exam_tip": "可以写：A constructor is called automatically when an object is created and is used to initialise its attributes.",
+    "page_type": "content"
+   }
+  },
+  {
+   "title": "Summary",
+   "text": "Summary\n- Class = blueprint; Object = instance with its own state\n- Encapsulation = private data + public methods\n- Constructor = sets up a new object\nExam check: Can you explain each term in one English sentence?",
+   "explanation": {
+    "summary": "总结：类是设计图，对象是实例，封装保护数据，构造方法负责初始化。",
+    "explanation": "这一讲的四个核心词，各用一句话记住：\n- **Class**：设计图，规定属性和方法\n- **Object**：类的实例，有自己的状态\n- **Encapsulation**：私有数据 + 公开方法\n- **Constructor**：创建对象时自动运行，设置初始值\n\n最后一行是老师给的自测：每个词你能不能用一句英文说出来？下面的练习就是帮你做这件事。",
+    "key_terms": [],
+    "example": "",
+    "exam_tip": "考前把四句英文定义背下来，简答题直接用得上。",
+    "page_type": "content"
+   }
+  }
+ ],
+ "SAMPLE_SECTIONS": [
+  {
+   "title": "类与对象 (Classes and Objects)",
+   "summary": "类是设计图，对象是按设计图造出来的实例",
+   "start": 1,
+   "end": 3
+  },
+  {
+   "title": "封装与构造方法 (Encapsulation and Constructors)",
+   "summary": "怎样保护对象的数据，以及对象是怎样被创建的",
+   "start": 4,
+   "end": 5
+  },
+  {
+   "title": "小结 (Summary)",
+   "summary": "四个核心概念各用一句英文说清楚",
+   "start": 6,
+   "end": 6
+  }
+ ],
+ "SAMPLE_EXERCISES": [
+  {
+   "type": "choice",
+   "question": "Which statement best describes an object?",
+   "options": [
+    "A. A blueprint for creating classes",
+    "B. An instance of a class with its own state",
+    "C. A type of loop",
+    "D. A database table"
+   ],
+   "answer": "B",
+   "explanation": "对象是类的实例 (instance)，有自己的状态；设计图 (blueprint) 说的是类。",
+   "page": 3,
+   "kps": [
+    "Object",
+    "Instance"
+   ]
+  },
+  {
+   "type": "choice",
+   "question": "In encapsulation, attributes are usually declared as:",
+   "options": [
+    "A. public",
+    "B. private",
+    "C. global",
+    "D. temporary"
+   ],
+   "answer": "B",
+   "explanation": "封装要把属性设成私有 (private)，再通过公开方法访问。",
+   "page": 4,
+   "kps": [
+    "Encapsulation",
+    "Private"
+   ]
+  },
+  {
+   "type": "choice",
+   "question": "When does a constructor run?",
+   "options": [
+    "A. When the program ends",
+    "B. When an object is created",
+    "C. Every time a getter is called",
+    "D. Only when you call it by hand"
+   ],
+   "answer": "B",
+   "explanation": "构造方法在用 new 创建对象时自动运行。",
+   "page": 5,
+   "kps": [
+    "Constructor"
+   ]
+  },
+  {
+   "type": "choice",
+   "question": "In the Student class on the slide, which one is a method?",
+   "options": [
+    "A. name",
+    "B. studentId",
+    "C. enrol(course)",
+    "D. Student"
+   ],
+   "answer": "C",
+   "explanation": "name 和 studentId 是属性 (attribute)；enrol(course) 是方法 (method)，表示能做的事。",
+   "page": 2,
+   "kps": [
+    "Method",
+    "Attribute"
+   ]
+  },
+  {
+   "type": "blank",
+   "question": "A ___ is a blueprint for creating objects.",
+   "answer": "class",
+   "explanation": "类 (class) 是创建对象的设计图。",
+   "page": 2,
+   "kps": [
+    "Class"
+   ]
+  },
+  {
+   "type": "blank",
+   "question": "Public methods that read a private attribute are called ___.",
+   "answer": "getters",
+   "explanation": "读取私有属性的公开方法叫 getter；修改的叫 setter。",
+   "page": 4,
+   "kps": [
+    "Getter / Setter"
+   ]
+  },
+  {
+   "type": "short_answer",
+   "question": "Explain the difference between a class and an object. Give one example. (4 marks)",
+   "answer": "A class is a blueprint that defines attributes and methods. An object is an instance created from the class, with its own state. For example, Student is a class, and a student called Mei with ID 1001 is an object.",
+   "key_points": [
+    "A class is a blueprint / template",
+    "An object is an instance of a class",
+    "Gives a correct example"
+   ],
+   "explanation": "得分点：类 = 设计图；对象 = 实例；举一个例子。",
+   "page": 3,
+   "kps": [
+    "Class",
+    "Object"
+   ]
+  },
+  {
+   "type": "short_answer",
+   "question": "Why is encapsulation useful? (3 marks)",
+   "answer": "Encapsulation makes attributes private so other code cannot change them directly. Access is only through public methods such as getters and setters, which can check (validate) the input. This protects the data and hides the details.",
+   "key_points": [
+    "Attributes are private",
+    "Access through public methods (getters/setters)",
+    "Protects data / allows validation"
+   ],
+   "explanation": "得分点：属性私有；通过公开方法访问；能保护数据、检查输入。",
+   "page": 4,
+   "kps": [
+    "Encapsulation"
+   ]
+  }
+ ],
+ "SAMPLE_REMEDIAL": [
+  {
+   "type": "choice",
+   "question": "You write `mei = Student(\"Mei\", 1001)`. What is `mei`?",
+   "options": [
+    "A. A class",
+    "B. An object (an instance of Student)",
+    "C. A method",
+    "D. An attribute"
+   ],
+   "answer": "B",
+   "explanation": "用类创建出来的具体东西就是对象，也叫实例。",
+   "kps": [
+    "Object",
+    "Instance"
+   ]
+  },
+  {
+   "type": "choice",
+   "question": "Which one is the best real-life example of a class?",
+   "options": [
+    "A. Your own phone",
+    "B. The design drawing of a phone model",
+    "C. The colour of your phone",
+    "D. Turning on your phone"
+   ],
+   "answer": "B",
+   "explanation": "类像设计图，一张设计图可以造出很多台手机（对象）。",
+   "kps": [
+    "Class"
+   ]
+  },
+  {
+   "type": "choice",
+   "question": "A Student object has `name` and `studentId`. What are they called?",
+   "options": [
+    "A. Methods",
+    "B. Constructors",
+    "C. Attributes",
+    "D. Classes"
+   ],
+   "answer": "C",
+   "explanation": "对象「有什么」叫属性 (attribute)；「能做什么」才是方法。",
+   "kps": [
+    "Attribute"
+   ]
+  },
+  {
+   "type": "blank",
+   "question": "`enrol(course)` describes what a Student can do, so it is a ___.",
+   "answer": "method",
+   "explanation": "表示对象能做的事情的是方法 (method)。",
+   "kps": [
+    "Method"
+   ]
+  },
+  {
+   "type": "choice",
+   "question": "Other code tries `s.studentId = -5` but gets an error. Which idea is protecting the data?",
+   "options": [
+    "A. Inheritance",
+    "B. Encapsulation",
+    "C. Looping",
+    "D. Recursion"
+   ],
+   "answer": "B",
+   "explanation": "属性是 private 的，外面不能直接改，这就是封装。",
+   "kps": [
+    "Encapsulation",
+    "Private"
+   ]
+  },
+  {
+   "type": "blank",
+   "question": "To change a private attribute safely, we call a public ___ method, which can check the value first.",
+   "answer": "setter",
+   "explanation": "修改私有属性的公开方法叫 setter，里面可以先检查输入。",
+   "kps": [
+    "Getter / Setter"
+   ]
+  },
+  {
+   "type": "choice",
+   "question": "What is the main job of a constructor?",
+   "options": [
+    "A. To delete an object",
+    "B. To give a new object its starting values",
+    "C. To print the class name",
+    "D. To make all attributes public"
+   ],
+   "answer": "B",
+   "explanation": "构造方法在创建对象时运行，给属性设置初始值。",
+   "kps": [
+    "Constructor"
+   ]
+  },
+  {
+   "type": "choice",
+   "question": "Object-Oriented Programming organises a program mainly around:",
+   "options": [
+    "A. Objects that hold data and behaviour",
+    "B. One very long main function",
+    "C. Only numbers",
+    "D. Web pages"
+   ],
+   "answer": "A",
+   "explanation": "面向对象就是用「对象」把数据和行为放在一起来组织程序。",
+   "kps": [
+    "Object-Oriented Programming"
+   ]
+  }
+ ],
+ "SAMPLE_KEYWORDS": {
+  "Explain the difference between a class and an object. Give one example. (4 marks)": [
+   [
+    "blueprint",
+    "template",
+    "design",
+    "plan",
+    "模板",
+    "蓝图",
+    "设计图"
+   ],
+   [
+    "instance",
+    "实例",
+    "created from",
+    "made from"
+   ],
+   [
+    "example",
+    "e.g",
+    "for instance",
+    "such as",
+    "例如",
+    "比如",
+    "student",
+    "car",
+    "dog"
+   ]
+  ],
+  "Why is encapsulation useful? (3 marks)": [
+   [
+    "private",
+    "私有",
+    "hide",
+    "hidden",
+    "隐藏"
+   ],
+   [
+    "method",
+    "getter",
+    "setter",
+    "方法"
+   ],
+   [
+    "protect",
+    "safe",
+    "valid",
+    "check",
+    "control",
+    "保护",
+    "检查",
+    "安全"
+   ]
+  ],
+  "Explain the difference between a class and an object. Use one example.": [
+   [
+    "blueprint",
+    "template",
+    "design",
+    "plan",
+    "模板",
+    "蓝图",
+    "设计图"
+   ],
+   [
+    "instance",
+    "实例",
+    "created from",
+    "made from"
+   ],
+   [
+    "example",
+    "e.g",
+    "for instance",
+    "such as",
+    "例如",
+    "比如",
+    "student",
+    "car",
+    "dog"
+   ]
+  ],
+  "A Student class has a private attribute studentId. Explain why we use a getter and a setter instead of making studentId public.": [
+   [
+    "private",
+    "私有",
+    "hide",
+    "hidden",
+    "directly",
+    "隐藏"
+   ],
+   [
+    "getter",
+    "setter",
+    "method",
+    "方法"
+   ],
+   [
+    "valid",
+    "check",
+    "protect",
+    "control",
+    "reject",
+    "检查",
+    "保护"
+   ]
+  ],
+  "What is a constructor? State when it runs.": [
+   [
+    "initial",
+    "starting",
+    "value",
+    "set up",
+    "初始",
+    "初值"
+   ],
+   [
+    "created",
+    "create",
+    "new",
+    "创建"
+   ]
+  ]
+ },
+ "SAMPLE_BLANKS": {
+  "A ___ is a blueprint for creating objects.": [
+   "class",
+   "a class",
+   "classes"
+  ],
+  "Public methods that read a private attribute are called ___.": [
+   "getters",
+   "getter",
+   "getter methods",
+   "accessors",
+   "accessor methods"
+  ],
+  "A(n) ___ is an instance of a class.": [
+   "object",
+   "an object",
+   "objects"
+  ]
+ },
+ "REMEDIAL_BLANKS": {
+  "`enrol(course)` describes what a Student can do, so it is a ___.": [
+   "method",
+   "a method",
+   "methods"
+  ],
+  "To change a private attribute safely, we call a public ___ method, which can check the value first.": [
+   "setter",
+   "set",
+   "setters"
+  ]
+ },
+ "SAMPLE_EXAM_TITLE": "示例往年考试题：OOP Practice Paper",
+ "SAMPLE_EXAM_PAGES": [
+  {
+   "title": "Section A — Multiple choice and short items (6 marks)",
+   "text": "PRACTICE PAPER — Object-Oriented Programming\nSection A (6 marks). Answer ALL questions.\nQ1. Which statement best describes encapsulation? (2 marks)\n  A. Creating many objects from one class\n  B. Keeping attributes private and accessing them through methods\n  C. Running a method automatically\n  D. Copying an object\nQ2. A(n) ___ is an instance of a class. (2 marks)\nQ3. Which keyword makes an attribute visible only inside its own class? (2 marks)\n  A. public  B. static  C. private  D. void",
+   "explanation": {
+    "summary": "这一页是选择和填空，考三个基础概念：封装、对象、private。",
+    "explanation": "Section A 都是送分题，但英文题干要看清楚：\n- **Q1** 考封装 (Encapsulation) 的定义：属性私有 + 通过方法访问\n- **Q2** 考对象 (Object) 和实例 (Instance) 是同一个意思\n- **Q3** 考访问修饰符 (access modifier)：只在类里能用的是 private\n\n做这类题的技巧：先找题干里的关键词（describes / instance / only inside），再对照定义。",
+    "key_terms": [
+     {
+      "en": "Access modifier",
+      "zh": "访问修饰符",
+      "note": "public / private 这些控制谁能访问的关键字"
+     }
+    ],
+    "example": "",
+    "exam_tip": "选择题先排除明显不对的选项，比如 Q1 里的 C 说的是构造方法。",
+    "page_type": "content"
+   }
+  },
+  {
+   "title": "Section B — Structured questions (16 marks)",
+   "text": "Section B (16 marks). Answer ALL questions.\nQ4. Explain the difference between a class and an object. Use one example. (6 marks)\nQ5. A Student class has a private attribute studentId. Explain why we use a getter and a setter instead of making studentId public. (6 marks)\nQ6. What is a constructor? State when it runs. (4 marks)",
+   "explanation": {
+    "summary": "这一页是简答题，考类和对象、封装的好处、构造方法，一共 16 分。",
+    "explanation": "简答题按得分点给分，每个得分点写一句清楚的英文就够了：\n- **Q4（6 分）**：类是设计图 (blueprint)；对象是实例 (instance)；再举一个例子\n- **Q5（6 分）**：属性私有不能被直接改；通过 getter / setter 访问；setter 可以检查输入、保护数据\n- **Q6（4 分）**：构造方法用来给新对象设初始值；在用 new 创建对象时自动运行\n\n分值越高，要写的得分点越多。",
+    "key_terms": [
+     {
+      "en": "Scoring point",
+      "zh": "得分点",
+      "note": "老师批改时找的关键句"
+     }
+    ],
+    "example": "",
+    "exam_tip": "6 分的题一般要写 3 个得分点，每个得分点 1–2 句英文。",
+    "page_type": "content"
+   }
+  }
+ ],
+ "SAMPLE_BANK": [
+  {
+   "label": "Q1",
+   "marks": 2,
+   "type": "choice",
+   "page": 1,
+   "kps": [
+    "Encapsulation"
+   ],
+   "question": "Which statement best describes encapsulation?",
+   "options": [
+    "A. Creating many objects from one class",
+    "B. Keeping attributes private and accessing them through methods",
+    "C. Running a method automatically",
+    "D. Copying an object"
+   ],
+   "answer": "B",
+   "explanation": "封装 = 属性私有 + 通过方法访问；C 说的是构造方法。"
+  },
+  {
+   "label": "Q2",
+   "marks": 2,
+   "type": "blank",
+   "page": 1,
+   "kps": [
+    "Object",
+    "Instance"
+   ],
+   "question": "A(n) ___ is an instance of a class.",
+   "answer": "object",
+   "explanation": "对象 (object) 就是类的实例 (instance)。"
+  },
+  {
+   "label": "Q3",
+   "marks": 2,
+   "type": "choice",
+   "page": 1,
+   "kps": [
+    "Private",
+    "Encapsulation"
+   ],
+   "question": "Which keyword makes an attribute visible only inside its own class?",
+   "options": [
+    "A. public",
+    "B. static",
+    "C. private",
+    "D. void"
+   ],
+   "answer": "C",
+   "explanation": "private 表示只能在类的内部访问。"
+  },
+  {
+   "label": "Q4",
+   "marks": 6,
+   "type": "short_answer",
+   "page": 2,
+   "kps": [
+    "Class",
+    "Object"
+   ],
+   "question": "Explain the difference between a class and an object. Use one example.",
+   "answer": "A class is a blueprint that defines the attributes and methods of a type of thing. An object is an instance created from a class, with its own values. For example, Student is a class, and a student called Mei with ID 1001 is an object.",
+   "key_points": [
+    "Class = blueprint / template",
+    "Object = instance with its own state",
+    "A correct example"
+   ],
+   "explanation": "三个得分点：类是设计图、对象是实例、举例。"
+  },
+  {
+   "label": "Q5",
+   "marks": 6,
+   "type": "short_answer",
+   "page": 2,
+   "kps": [
+    "Getter / Setter",
+    "Encapsulation"
+   ],
+   "question": "A Student class has a private attribute studentId. Explain why we use a getter and a setter instead of making studentId public.",
+   "answer": "Keeping studentId private stops other code from changing it directly. The getter lets other classes read the value, and the setter is the only way to change it, so the setter can check the input (for example reject a negative ID). This protects the data and hides the internal details.",
+   "key_points": [
+    "The attribute stays private / hidden",
+    "Access only through public getter and setter",
+    "Setter can validate input and protect data"
+   ],
+   "explanation": "三个得分点：保持私有、通过 getter/setter 访问、setter 可以检查输入。"
+  },
+  {
+   "label": "Q6",
+   "marks": 4,
+   "type": "short_answer",
+   "page": 2,
+   "kps": [
+    "Constructor"
+   ],
+   "question": "What is a constructor? State when it runs.",
+   "answer": "A constructor is a special method that sets the starting values of a new object's attributes. It runs automatically when an object is created with new.",
+   "key_points": [
+    "Sets initial values of a new object",
+    "Runs automatically when the object is created"
+   ],
+   "explanation": "两个得分点：给新对象设初始值；创建对象时自动运行。"
+  }
+ ]
+}

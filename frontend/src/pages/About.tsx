@@ -4,12 +4,12 @@ interface AboutProps {
 
 export default function About({ onNavigate }: AboutProps) {
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* 顶部栏 */}
-      <div className="border-b border-gray-100 px-4 py-3 flex items-center gap-4">
-        <button onClick={() => onNavigate("welcome")}
+      <div className="max-w-2xl mx-auto w-full px-4 pt-6 md:pt-10 flex items-center gap-4">
+        <button onClick={() => onNavigate("profile")}
                 className="text-xs text-gray-400 hover:text-gray-600">← 返回</button>
-        <h2 className="text-sm font-medium text-gray-800 flex-1">关于我</h2>
+        <h1 className="font-serif text-2xl text-gray-900 tracking-wide flex-1">关于我</h1>
       </div>
 
       <div className="max-w-2xl mx-auto w-full px-4 py-8 space-y-6">

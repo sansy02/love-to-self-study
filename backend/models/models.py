@@ -104,6 +104,23 @@ class StudySession(Base):
     progress = Column(Text, default="")                 # JSON: {"last_page": 3, "visited": [1,2,3]}
     profile_id = Column(Integer, ForeignKey("student_profiles.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    course_id = Column(Integer, nullable=True, index=True)          # 2.2：属于哪门课
+    material_type = Column(String(20), default="lecture")           # lecture / tutorial / past_exam / notes
+    week = Column(Integer, nullable=True)                           # 第几周（可不填）
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=True)
+
+
+class Course(Base):
+    """一门课：把老师课件、Tutorial、往年考试题等资料组织在一起"""
+    __tablename__ = "courses"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    name = Column(String(200), nullable=False)
+    code = Column(String(50), default="")
+    exam_date = Column(String(10), default="")       # YYYY-MM-DD，可不填
+    kind = Column(String(20), default="normal")      # normal / inbox（未分类）/ sample
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=True)
 
@@ -189,7 +206,55 @@ class Exercise(Base):
     batch = Column(String(36), default="")       # 同一次生成的一套题
     answered = Column(Boolean, default=False)
     lang = Column(String(10), default="zh")      # 题目语言
+    kp_ids = Column(Text, default="")            # JSON: 关联的知识点 id 列表
+    source_label = Column(String(200), default="")  # 3.0 题库：原题出处，例如「Q4(b)」
+    marks = Column(Integer, nullable=True)           # 3.0 题库：原题分值
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class KnowledgePoint(Base):
+    """
+    知识点：来自课件大纲的章节（kind=section）和讲解里的关键术语（kind=term）。
+    出题时 AI 只能从这份清单里选，不能自己发明知识点。
+    """
+    __tablename__ = "knowledge_points"
+    __table_args__ = (UniqueConstraint("document_id", "name", name="uq_doc_kp"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    document_id = Column(String(32), ForeignKey("documents.id"), nullable=False, index=True)
+    name = Column(String(200), nullable=False)
+    kind = Column(String(20), default="section")     # section / term
+    section_index = Column(Integer, nullable=True)
+    page_start = Column(Integer, nullable=True)
+    page_end = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Attempt(Base):
+    """
+    每一次作答都记一条（练习、复习、补救题），用于计算掌握度。
+    evidence：strong = 选择题/填空题精确判分；weak = AI 给简答题打的分（只作参考）
+    """
+    __tablename__ = "attempts"
+    __table_args__ = (Index("ix_attempt_user_time", "user_id", "created_at"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    exercise_id = Column(Integer, ForeignKey("exercises.id"), nullable=False, index=True)
+    session_id = Column(String(36), default="")
+    kp_ids = Column(Text, default="")                # JSON
+    question_type = Column(String(20), default="")
+    user_answer = Column(Text, default="")
+    correct_answer = Column(Text, default="")
+    status = Column(String(20), default="")          # correct / wrong / ungraded
+    score = Column(Integer, nullable=True)
+    evidence = Column(String(10), default="strong")  # strong / weak
+    graded_by = Column(String(10), default="rule")   # rule / ai / keyword
+    error_reason = Column(String(20), default="")    # 见 ai_service.ERROR_TYPES
+    error_reason_source = Column(String(10), default="")  # ai / user
+    feedback = Column(Text, default="")              # JSON
+    source = Column(String(20), default="practice")  # practice / review / remedial
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -207,6 +272,9 @@ class User(Base):
     is_anonymous = Column(Boolean, default=False)
     api_key = Column(String(200), nullable=True)          # 旧字段：明文 Key（读取时自动迁移到 api_key_enc 并清空）
     api_key_enc = Column(Text, nullable=True)             # 加密后的用户 API Key
+    recovery_hash = Column(String(64), nullable=True, index=True)  # 找回码的哈希（不存明文）
+    recovery_created_at = Column(DateTime, nullable=True)
+    learn_profile = Column(Text, default="")             # 3.0：学习方式问卷（JSON）
     login_attempts = Column(Integer, default=0)        # 登录失败次数
     locked_until = Column(DateTime, nullable=True)      # 锁定到期时间
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -228,4 +296,45 @@ class WrongBook(Base):
     mastered = Column(Boolean, default=False)
     last_reviewed_at = Column(DateTime, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PageStyleExplanation(Base):
+    """
+    3.0：按学习方式生成的讲解（英文程度 / 先例子还是先定义 / 长短）。
+    默认方式的讲解仍然放在 DocPage.explanation；其他方式按 style_key 缓存，同样方式的人直接复用。
+    """
+    __tablename__ = "page_style_explanations"
+    __table_args__ = (UniqueConstraint("document_id", "page_no", "style_key", name="uq_page_style"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    document_id = Column(String(32), ForeignKey("documents.id"), nullable=False, index=True)
+    page_no = Column(Integer, nullable=False)
+    style_key = Column(String(60), nullable=False)
+    explanation = Column(Text, default="")
+    provider = Column(String(50), default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class ActivityDay(Base):
+    """3.0：每天有没有学（用来算连续学习天数和学习日历）"""
+    __tablename__ = "activity_days"
+    __table_args__ = (UniqueConstraint("user_id", "day", name="uq_user_day"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    day = Column(String(10), nullable=False)          # 北京时间 YYYY-MM-DD
+    count = Column(Integer, default=0)
+
+
+class RoutePlan(Base):
+    """3.0：某一天某门课的路线（当天第一次打开时排好，之后只更新完成情况）"""
+    __tablename__ = "route_plans"
+    __table_args__ = (UniqueConstraint("user_id", "course_id", "day", name="uq_route_day"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    course_id = Column(Integer, nullable=False)
+    day = Column(String(10), nullable=False)
+    steps = Column(Text, default="[]")                # JSON
     created_at = Column(DateTime, default=datetime.utcnow)

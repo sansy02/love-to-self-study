@@ -163,7 +163,7 @@ export default function Login({ onLogin }: LoginProps) {
           </button>
         </p>
 
-        <p className="text-center text-xs text-gray-300 mt-8">
+        <p className="text-center text-xs text-gray-400 mt-8">
           由 <span className="text-gray-400 font-medium">sansy02</span> 开发
         </p>
       </div>
