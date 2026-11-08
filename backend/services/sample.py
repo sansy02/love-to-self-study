@@ -238,6 +238,7 @@ def ensure_sample(db) -> Document:
                    outline=json.dumps({"title": SAMPLE_TITLE, "summary": "一份原创示例课件，带你走一遍完整流程",
                                        "sections": SAMPLE_SECTIONS}, ensure_ascii=False))
     db.add(doc)
+    db.flush()  # 先写入 documents，doc_pages 的外键才成立（Postgres 会检查）
     for i, p in enumerate(SAMPLE_PAGES, 1):
         db.add(DocPage(document_id=doc.id, page_no=i, title=p["title"], text=p["text"],
                        explanation=json.dumps(p["explanation"], ensure_ascii=False), explanation_provider="sample"))
@@ -395,6 +396,7 @@ def ensure_sample_exam(db) -> Document:
                                                     {"title": "Section B", "summary": "", "start": 2, "end": 2}]},
                                       ensure_ascii=False))
     db.add(doc)
+    db.flush()  # 先写入 documents，doc_pages 的外键才成立（Postgres 会检查）
     for i, p in enumerate(SAMPLE_EXAM_PAGES, 1):
         db.add(DocPage(document_id=doc.id, page_no=i, title=p["title"], text=p["text"],
                        explanation=json.dumps(p["explanation"], ensure_ascii=False), explanation_provider="sample"))

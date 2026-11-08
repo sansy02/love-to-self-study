@@ -4,7 +4,7 @@
 import os
 
 import config  # noqa: F401  先加载 .env
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 
@@ -22,6 +22,13 @@ if IS_POSTGRES:
     })
 else:
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+    @event.listens_for(engine, "connect")
+    def _sqlite_foreign_keys(dbapi_conn, _record):
+        """SQLite 默认不检查外键。打开它，本地和测试才会像线上 Postgres 一样，在写入顺序错误时报错。"""
+        cur = dbapi_conn.cursor()
+        cur.execute("PRAGMA foreign_keys=ON")
+        cur.close()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

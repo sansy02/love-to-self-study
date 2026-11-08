@@ -254,6 +254,7 @@ async def upload(request: Request, file: UploadFile = File(...), course_id: int 
         doc = Document(id=uuid.uuid4().hex, content_hash=digest, source_type="file", file_type=parsed.file_type,
                        filename=filename[:300], title=title, page_count=len(parsed.pages))
         db.add(doc)
+        db.flush()  # 先写入 documents，doc_pages 的外键才成立（Postgres 会检查）
         for p in parsed.pages:
             db.add(DocPage(document_id=doc.id, page_no=p.page_no, title=p.title[:300], text=p.text,
                            notes=p.notes, image=p.image, image_kind=p.image_kind, image_count=p.image_count))
@@ -309,6 +310,7 @@ async def start_topic(request: Request, req: TopicRequest, user_id: int = Depend
                        outline=json.dumps({"title": plan.get("title") or topic, "summary": plan.get("summary", ""),
                                            "sections": sections}, ensure_ascii=False))
         db.add(doc)
+        db.flush()  # 先写入 documents，doc_pages 的外键才成立（Postgres 会检查）
         for i, (title, text) in enumerate(pages, 1):
             db.add(DocPage(document_id=doc.id, page_no=i, title=title, text=text))
         db.commit()
